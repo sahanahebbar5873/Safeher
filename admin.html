@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SafeHer Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --rose: #C94070; --rose-dark: #72243E; --rose-light: #FBEAF0;
+      --safe: #1D9E75; --safe-light: #E1F5EE; --safe-dark: #085041;
+      --danger: #E24B4A; --danger-light: #FCEBEB;
+      --gold: #BA7517; --gold-light: #FAEEDA;
+      --text: #2C2C2A; --text2: #5F5E5A; --text3: #888780;
+      --bg: #F7F3F0; --surface: #fff; --border: #E8DDD5;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* HEADER */
+    .header {
+      background: var(--rose-dark); color: #fff;
+      padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between;
+    }
+    .header h1 { font-family: 'Playfair Display', serif; font-size: 22px; }
+    .header p  { font-size: 12px; color: rgba(255,255,255,.6); margin-top: 2px; }
+    .live-badge {
+      display: flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,.12); border-radius: 20px;
+      padding: 6px 14px; font-size: 13px;
+    }
+    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #5DCAA5; animation: blink 1.5s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* LAYOUT */
+    .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* STAT CARDS */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card {
+      background: var(--surface); border: .5px solid var(--border);
+      border-radius: 14px; padding: 1.25rem 1.5rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .stat-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
+    }
+    .stat-label { font-size: 12px; color: var(--text2); font-weight: 500; text-transform: uppercase; letter-spacing: .8px; }
+    .stat-value { font-size: 32px; font-weight: 600; color: var(--text); line-height: 1.1; margin-top: 2px; }
+
+    /* PANELS */
+    .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
+    @media(max-width:700px){ .panels { grid-template-columns: 1fr; } }
+    .panel {
+      background: var(--surface); border: .5px solid var(--border);
+      border-radius: 14px; padding: 1.25rem;
+    }
+    .panel-title {
+      font-size: 13px; font-weight: 600; color: var(--text2);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .panel-title i { font-size: 16px; }
+
+    /* TABLE */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table th {
+      text-align: left; padding: 6px 10px;
+      font-size: 11px; font-weight: 600; color: var(--text3);
+      text-transform: uppercase; letter-spacing: .8px;
+      border-bottom: .5px solid var(--border);
+    }
+    .data-table td { padding: 9px 10px; border-bottom: .5px solid var(--border); color: var(--text2); vertical-align: middle; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--bg); }
+
+    /* BADGES */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      border-radius: 10px; padding: 2px 9px; font-size: 11px; font-weight: 500;
+    }
+    .badge.online  { background: var(--safe-light);   color: var(--safe-dark); }
+    .badge.offline { background: var(--bg);            color: var(--text3); border: .5px solid var(--border); }
+    .badge.sos     { background: var(--danger-light);  color: #A32D2D; }
+    .badge.login   { background: var(--rose-light);    color: var(--rose-dark); }
+
+    /* REFRESH */
+    .refresh-btn {
+      background: var(--rose); color: #fff; border: none;
+      border-radius: 8px; padding: 8px 18px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: background .2s;
+    }
+    .refresh-btn:hover { background: var(--rose-dark); }
+
+    .full-panel { margin-bottom: 1.25rem; }
+    .empty { text-align: center; color: var(--text3); font-size: 13px; padding: 1.5rem 0; }
+
+    .spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,.4); border-top-color: #fff;
+      border-radius: 50%; animation: spin .6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .last-updated { font-size: 12px; color: var(--text3); margin-left: auto; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>🛡️ SafeHer Admin</h1>
+    <p>Live monitoring dashboard</p>
+  </div>
+  <div style="display:flex;align-items:center;gap:1rem">
+    <div class="live-badge"><span class="live-dot"></span> Live</div>
+    <button class="refresh-btn" onclick="loadStats()" id="refresh-btn">
+      <i class="ti ti-refresh"></i> Refresh
+    </button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- STAT CARDS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--rose-light)">👥</div>
+      <div>
+        <div class="stat-label">Total Users</div>
+        <div class="stat-value" id="stat-total">—</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--safe-light)">🟢</div>
+      <div>
+        <div class="stat-label">Online Now</div>
+        <div class="stat-value" id="stat-online" style="color:var(--safe)">—</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--danger-light)">🚨</div>
+      <div>
+        <div class="stat-label">Total SOS Alerts</div>
+        <div class="stat-value" id="stat-sos" style="color:var(--danger)">—</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--gold-light)">📊</div>
+      <div>
+        <div class="stat-label">Offline Users</div>
+        <div class="stat-value" id="stat-offline" style="color:var(--gold)">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TWO PANELS -->
+  <div class="panels">
+
+    <!-- Recent Logins -->
+    <div class="panel">
+      <div class="panel-title"><i class="ti ti-login"></i> Recent Logins</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Email</th><th>Time</th><th>Action</th></tr>
+        </thead>
+        <tbody id="login-log"><tr><td colspan="3" class="empty">Loading…</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- Recent SOS -->
+    <div class="panel">
+      <div class="panel-title"><i class="ti ti-alert-triangle"></i> Recent SOS Alerts</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Email</th><th>Time</th><th>Location</th></tr>
+        </thead>
+        <tbody id="sos-log"><tr><td colspan="3" class="empty">Loading…</td></tr></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ALL USERS -->
+  <div class="panel full-panel">
+    <div class="panel-title" style="margin-bottom:1rem">
+      <i class="ti ti-users"></i> All Users
+      <span class="last-updated" id="last-updated"></span>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr><th>Email</th><th>Status</th><th>Registered</th><th>Last Login</th><th>Total Logins</th></tr>
+      </thead>
+      <tbody id="all-users"><tr><td colspan="5" class="empty">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+  const BASE = 'http://localhost:5000';
+
+  function fmt(dateStr) {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function shortEmail(email) {
+    if (!email) return '—';
+    const [local, domain] = email.split('@');
+    return local.length > 12 ? local.slice(0, 10) + '…@' + domain : email;
+  }
+
+  async function loadStats() {
+    const btn = document.getElementById('refresh-btn');
+    btn.innerHTML = '<span class="spinner"></span> Loading';
+    btn.disabled = true;
+
+    try {
+      const r = await fetch(BASE + '/admin/stats');
+      const d = await r.json();
+
+      // Stat cards
+      document.getElementById('stat-total').textContent   = d.totalUsers;
+      document.getElementById('stat-online').textContent  = d.onlineUsers;
+      document.getElementById('stat-sos').textContent     = d.totalSOS;
+      document.getElementById('stat-offline').textContent = d.totalUsers - d.onlineUsers;
+
+      // Login log
+      const loginBody = document.getElementById('login-log');
+      if (d.recentLogins.length === 0) {
+        loginBody.innerHTML = '<tr><td colspan="3" class="empty">No logins yet</td></tr>';
+      } else {
+        loginBody.innerHTML = d.recentLogins.map(l => `
+          <tr>
+            <td>${shortEmail(l.email)}</td>
+            <td>${fmt(l.timestamp)}</td>
+            <td><span class="badge login">login</span></td>
+          </tr>`).join('');
+      }
+
+      // SOS log
+      const sosBody = document.getElementById('sos-log');
+      if (d.recentSOS.length === 0) {
+        sosBody.innerHTML = '<tr><td colspan="3" class="empty">No SOS alerts yet</td></tr>';
+      } else {
+        sosBody.innerHTML = d.recentSOS.map(s => `
+          <tr>
+            <td>${shortEmail(s.email)}</td>
+            <td>${fmt(s.timestamp)}</td>
+            <td><span class="badge sos">🚨 SOS</span></td>
+          </tr>`).join('');
+      }
+
+      // All users
+      const usersBody = document.getElementById('all-users');
+      if (d.allUsers.length === 0) {
+        usersBody.innerHTML = '<tr><td colspan="5" class="empty">No users yet</td></tr>';
+      } else {
+        usersBody.innerHTML = d.allUsers.map(u => `
+          <tr>
+            <td style="font-weight:500;color:var(--text)">${u.email}</td>
+            <td><span class="badge ${u.isOnline ? 'online' : 'offline'}">${u.isOnline ? '🟢 Online' : '⚫ Offline'}</span></td>
+            <td>${fmt(u.createdAt)}</td>
+            <td>${fmt(u.lastLogin)}</td>
+            <td style="text-align:center;font-weight:500">${u.loginCount || 0}</td>
+          </tr>`).join('');
+      }
+
+      document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+
+    } catch (e) {
+      alert('Cannot reach backend. Make sure server is running on port 5000.');
+    }
+
+    btn.innerHTML = '<i class="ti ti-refresh"></i> Refresh';
+    btn.disabled = false;
+  }
+
+  // Load on start, then auto-refresh every 30s
+  loadStats();
+  setInterval(loadStats, 30000);
+</script>
+</body>
+</html>
